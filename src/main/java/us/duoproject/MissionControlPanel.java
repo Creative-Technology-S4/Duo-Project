@@ -16,7 +16,6 @@ public class MissionControlPanel extends JPanel {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.beaconCount = beaconCount;
-        getWidth();
     }
 
     @Override
