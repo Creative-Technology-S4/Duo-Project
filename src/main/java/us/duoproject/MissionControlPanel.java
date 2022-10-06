@@ -65,6 +65,13 @@ public class MissionControlPanel extends JPanel {
     }
 
     public void triggerTrack(int id, boolean triggered) {
-        BEACONS.stream().filter(beacon -> beacon.getId() == id).findFirst().ifPresent(beacon -> beacon.setTriggered(triggered));
+        TRACKS.stream().filter(beacon -> beacon.getId() == id).findFirst().ifPresent(beacon -> beacon.setTriggered(triggered));
+    }
+
+    public void clearBoard() {
+        for (int i = 1; i <= beaconCount; i++) {
+            triggerBeacon(i, false);
+            triggerTrack(i, false);
+        }
     }
 }
