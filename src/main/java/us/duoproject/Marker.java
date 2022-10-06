@@ -1,4 +1,4 @@
-package us.duoproject.marker;
+package us.duoproject;
 
 import java.awt.*;
 

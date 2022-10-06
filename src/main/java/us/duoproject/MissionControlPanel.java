@@ -1,7 +1,5 @@
 package us.duoproject;
 
-import us.duoproject.marker.Marker;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
