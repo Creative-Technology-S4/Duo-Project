@@ -1,32 +1,48 @@
 const String START_DELIMITER = "<";
 const String END_DELIMITER = ">";
 
-const int pingPin_1 = 3;
-const int echoPin_1 = 2;
-const int pingPin_2 = 5;
-const int echoPin_2 = 4;
+/*
+ * Counter used to setup sensors dynamically. Sets up INPUT/OUTPUT pins for every sensor and also performs a trigger check.
+ *
+ * Setup on Arduino:
+ * - Sensors can be added starting from pin 2, 3.
+ * - The first pin is the input (echo) and second the output (trig).
+ * - Sensors have ids 1 through n amounts of sensors.
+ *
+ * Example:
+ * - Single sensor:  pins 2 & 3 is sensor with id "1".
+ * 
+ * - Dual sensor:    pins 2 & 3 is sensor with id "1".
+ *                   pins 4 & 5 is sensor with id "2".
+ *
+ * - Triple sensor:  pins 2 & 3 is sensor with id "1".
+ *                   pins 4 & 5 is sensor with id "2".
+ *                   pins 6 & 7 is sensor with id "3".
+ */
+const int SENSOR_COUNT = 2;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(pingPin_1, OUTPUT);
-  pinMode(echoPin_1, INPUT);
-  pinMode(pingPin_2, OUTPUT);
-  pinMode(echoPin_2, INPUT);
+  for (int i = 0; i < SENSOR_COUNT; i++) {
+    pinMode(3 + i * 2, OUTPUT);
+    pinMode(2 + i * 2, INPUT);
+  }
 }
 
 void loop() {
-  int sensors[2] = {};
+  int sensors[SENSOR_COUNT] = {};
 
-  sensors[0] = isTriggered(1, pingPin_1, echoPin_1);
-  sensors[1] = isTriggered(2, pingPin_2, echoPin_2);
+  for (int i = 0; i < SENSOR_COUNT; i++) {
+    sensors[i] = isTriggered(i + 1, 3 + i * 2, 2 + i * 2);
+  }
 
   String data = "[";
   for (int i = 0; i < sizeof sensors / sizeof sensors[0]; i++) {
     if (sensors[i]) {
       data += String(i + 1) + ",";
-      // Serial.println(String(i + 1));
     }
   }
+
   if (data.length() > 1) {  
     data.remove(data.length() - 1);
   }

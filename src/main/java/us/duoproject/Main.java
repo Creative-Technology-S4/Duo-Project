@@ -35,10 +35,8 @@ public class Main {
         panel.revalidate();
         panel.repaint();
 
-        JsonArray sensors = object.get("sensors").getAsJsonArray();
-        for (JsonElement sensor : sensors) {
-            int id = sensor.getAsInt();
-            panel.triggerBeacon(id, true);
+        for (JsonElement sensor : object.get("sensors").getAsJsonArray()) {
+            panel.triggerBeacon(sensor.getAsInt(), true);
         }
     }
 
