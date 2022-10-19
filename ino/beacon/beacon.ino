@@ -15,11 +15,27 @@ void setup() {
 }
 
 void loop() {
-  doChecks(1, pingPin_1, echoPin_1);
-  doChecks(2, pingPin_2, echoPin_2);
+  int sensors[2] = {};
+
+  sensors[0] = isTriggered(1, pingPin_1, echoPin_1);
+  sensors[1] = isTriggered(2, pingPin_2, echoPin_2);
+
+  String data = "[";
+  for (int i = 0; i < sizeof sensors / sizeof sensors[0]; i++) {
+    if (sensors[i]) {
+      data += String(i + 1) + ",";
+      // Serial.println(String(i + 1));
+    }
+  }
+  if (data.length() > 1) {  
+    data.remove(data.length() - 1);
+  }
+  data += "]";
+
+  send(toJson("sensors", data));
 }
 
-void doChecks(int id, int ping, int echo) {
+bool isTriggered(int id, int ping, int echo) {  
   digitalWrite(ping, LOW);
   delayMicroseconds(2);
   digitalWrite(ping, HIGH);
@@ -28,11 +44,8 @@ void doChecks(int id, int ping, int echo) {
 
   long cm = microsecondsToCentimeters(pulseIn(echo, HIGH));
 
-  if (withinThreshold(cm)) {
-    send(toJson("sensor", String(id)));
-  }
-
   delay(100);
+  return withinThreshold(cm);
 }
 
 long microsecondsToCentimeters(long microseconds) {

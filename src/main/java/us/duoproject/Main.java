@@ -1,6 +1,8 @@
 package us.duoproject;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.swing.*;
@@ -33,7 +35,11 @@ public class Main {
         panel.revalidate();
         panel.repaint();
 
-        panel.triggerBeacon(object.get("sensor").getAsInt(), true);
+        JsonArray sensors = object.get("sensors").getAsJsonArray();
+        for (JsonElement sensor : sensors) {
+            int id = sensor.getAsInt();
+            panel.triggerBeacon(id, true);
+        }
     }
 
     public static void display(MissionControlPanel panel) {
