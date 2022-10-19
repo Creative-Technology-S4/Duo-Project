@@ -7,7 +7,7 @@ import javax.swing.*;
 
 public class Main {
 
-    private static final String COM_PORT = "COM3";
+    private static final String COM_PORT = "dev/cu.usbmodem1101";
     private static final int BEACON_COUNT = 6;
 
     private static final int SIZE_X = 1200;
@@ -33,16 +33,7 @@ public class Main {
         panel.revalidate();
         panel.repaint();
 
-        int value = object.get("value").getAsInt();
-        for (int i = 1; i <= value; i++) {
-            panel.triggerBeacon(i, true);
-        }
-
-//        JsonArray beacons = object.get("beacons").getAsJsonArray();
-//        JsonArray tracks = object.get("tracks").getAsJsonArray();
-
-//        beacons.forEach(beacon -> panel.triggerBeacon(beacon.getAsInt(), true));
-//        tracks.forEach(track -> panel.triggerTrack(track.getAsInt(), true));
+        panel.triggerBeacon(object.get("sensor").getAsInt(), true);
     }
 
     public static void display(MissionControlPanel panel) {
