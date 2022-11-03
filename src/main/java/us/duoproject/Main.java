@@ -1,7 +1,7 @@
 package us.duoproject;
 
 import com.fazecast.jSerialComm.SerialPort;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.microedition.io.Connector;
@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,18 +39,23 @@ public class Main {
             OutputStream outputStream = streamConnection.openOutputStream();
 
             new Timer().schedule(new TimerTask() {
+                boolean previous;
+
                 @Override
                 public void run() {
                     try {
-                        if (DO_STOP.get()) {
-                            outputStream.write(new byte[] { 'h', 'e', 'l', 'l', 'o' });
-                            DO_STOP.set(false);
+                        boolean current = DO_STOP.get();
+
+                        if (previous != current) {
+                            previous = current;
+                            debug(current ? "STOP" : "MOVE");
+                            outputStream.write(new byte[] { 1 });
                         }
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
                 }
-            }, 1000);
+            }, 0, 10);
 
             MissionControlPanel panel = new MissionControlPanel(SIZE_X, SIZE_Y, SENSOR_COUNT);
             JButton button = new JButton(new AbstractAction("Calibrate") {
@@ -74,9 +80,6 @@ public class Main {
     }
 
     public static void onJson(MissionControlPanel panel, JsonObject object) {
-        DO_STOP.set(false);
-        int trainToSensor;
-
         int distance = object.get("distance").getAsInt();
         if (DO_CALIBRATE.get()) {
             TOTAL_LENGTH.set(distance);
@@ -84,24 +87,18 @@ public class Main {
         }
 
         float progress = (float) MathUtil.clampedMap(distance, TOTAL_LENGTH.get(), 0, 0, 1.0F);
-        trainToSensor = (int) MathUtil.clampedMap(progress, 0, 1.0F, 0, SENSOR_COUNT + 1);
+        int trainRelativeToSensor = (int) MathUtil.clampedMap(progress, 0, 1.0F, 0, SENSOR_COUNT + 1) + 1;
         panel.setProgress(progress);
-
         panel.clearBoard();
         panel.revalidate();
         panel.repaint();
 
-        JsonArray sensors = object.get("sensors").getAsJsonArray();
-        for (int i = 0; i < sensors.getAsJsonArray().size(); i++) {
-            int sensor = sensors.getAsJsonArray().get(i).getAsInt();
+        List<Integer> sensors = object.get("sensors").getAsJsonArray().asList().stream().map(JsonElement::getAsInt).toList();
+        for (Integer sensor : sensors) {
             panel.triggerBeacon(sensor, true);
-
-            if (trainToSensor == sensor - 1) {
-                DO_STOP.set(true);
-            }
         }
 
-        System.out.println(DO_STOP.get());
+        DO_STOP.set(sensors.contains(trainRelativeToSensor));
     }
 
     public static void display(MissionControlPanel panel) {
@@ -110,5 +107,9 @@ public class Main {
         frame.add(panel);
         frame.setSize(SIZE_X, SIZE_Y);
         frame.setVisible(true);
+    }
+
+    private static synchronized void debug(Object object) {
+        System.out.println(object);
     }
 }
