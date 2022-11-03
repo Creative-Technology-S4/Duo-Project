@@ -52,8 +52,7 @@ void loop() {
   }
   data += "]";
 
-  send(toJson("sensors", data));
-  send(toJson("distance", String(distance(3, 2))));
+  send("{sensors:" + data + ",distance:" + String(distance(3, 2)) + "}");
 }
 
 bool isTriggered(int ping, int echo) {
@@ -75,6 +74,3 @@ void send(String raw) {
   Serial.println(START_DELIMITER + raw + END_DELIMITER);
 }
 
-String toJson(String key, String value) {
-  return "{\"" + key + "\":" + value + "}";
-}
