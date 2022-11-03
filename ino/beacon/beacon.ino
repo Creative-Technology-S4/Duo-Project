@@ -19,7 +19,7 @@ const String END_DELIMITER = ">";
  *                   pins 4 & 5 is sensor with id "2".
  *                   pins 6 & 7 is sensor with id "3".
  */
-const int SENSOR_COUNT = 2;
+const int SENSOR_COUNT = 1;
 
 void setup() {
   Serial.begin(9600);
@@ -33,7 +33,7 @@ void loop() {
   int sensors[SENSOR_COUNT] = {};
 
   for (int i = 0; i < SENSOR_COUNT; i++) {
-    sensors[i] = isTriggered(i + 1, 3 + i * 2, 2 + i * 2);
+    sensors[i] = isTriggered(3 + i * 2, 2 + i * 2);
   }
 
   String data = "[";
@@ -51,25 +51,19 @@ void loop() {
   send(toJson("sensors", data));
 }
 
-bool isTriggered(int id, int ping, int echo) {  
+bool isTriggered(int ping, int echo) {
+  return distance(ping, echo) < 10;
+}
+
+long distance(int ping, int echo) {
   digitalWrite(ping, LOW);
   delayMicroseconds(2);
   digitalWrite(ping, HIGH);
   delayMicroseconds(10);
   digitalWrite(ping, LOW);
 
-  long cm = microsecondsToCentimeters(pulseIn(echo, HIGH));
-
-  delay(100);
-  return withinThreshold(cm);
-}
-
-long microsecondsToCentimeters(long microseconds) {
-  return microseconds / 29 / 2;
-}
-
-bool withinThreshold(long cm) {
-  return cm < 10;
+//   delay(100);
+  return pulseIn(echo, HIGH) / 29 / 2;
 }
 
 void send(String raw) {
