@@ -52,8 +52,9 @@ void loop() {
   }
   data += "]";
 
-  send(toJson("distance", String(distance(3, 2))));
-  // send(toJson("sensors", data));
+  String sensorJson = toJson("sensors", data);
+  String distanceJson = toJson("distance", String(distance(3, 2)));
+  send("{" + sensorJson + "," + distanceJson + "}");
 }
 
 bool isTriggered(int ping, int echo) {
