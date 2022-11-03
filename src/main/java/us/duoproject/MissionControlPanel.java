@@ -11,11 +11,12 @@ public class MissionControlPanel extends JPanel {
     private static final int BEACON_SIZE = 20;
 
     private final List<Marker> BEACONS = new ArrayList<>();
-    private final List<Marker> TRACKS = new ArrayList<>();
 
     private final int sizeX;
     private final int sizeY;
     private final int beaconCount;
+
+    private float progress = 0.0F;
 
     public MissionControlPanel(int sizeX, int sizeY, int beaconCount) {
         this.sizeX = sizeX;
@@ -24,30 +25,43 @@ public class MissionControlPanel extends JPanel {
 
         for (int i = 1; i <= beaconCount; i++) {
             BEACONS.add(new Marker(i, deltaX(i, BEACON_SIZE), deltaY(3), BEACON_SIZE));
-            TRACKS.add(new Marker(i, deltaX(i, TRACK_SIZE), deltaY(4), TRACK_SIZE));
         }
     }
 
-    @Override
-    public void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-
-        graphics.setColor(new Color(200, 200, 200));
-        graphics.fillRect(0, deltaY(3), sizeX, BEACON_SIZE);
-        for (int i = 0; i < beaconCount; i++) {
-            BEACONS.get(i).paint(graphics);
-        }
-
-        graphics.setColor(new Color(150, 150, 150));
-        graphics.fillRect(0, deltaY(4) + TRACK_SIZE / 4, sizeX, TRACK_SIZE / 2);
-        for (int i = 0; i < beaconCount; i++) {
-            TRACKS.get(i).paint(graphics);
-        }
+    public void setProgress(float progress) {
+        this.progress = progress;
     }
 
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(sizeX, sizeY);
+    }
+
+    @Override
+    public void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+        drawSensors(graphics);
+        drawTracks(graphics);
+
+    }
+
+    private void drawSensors(Graphics graphics) {
+        graphics.setColor(new Color(200, 200, 200));
+        graphics.fillRect(0, deltaY(3), sizeX, BEACON_SIZE);
+        for (int i = 0; i < beaconCount; i++) {
+            BEACONS.get(i).paint(graphics);
+        }
+    }
+
+    private void drawTracks(Graphics graphics) {
+        // track background
+        graphics.setColor(new Color(150, 150, 150));
+        graphics.fillRect(0, deltaY(4) + TRACK_SIZE / 4, sizeX, TRACK_SIZE);
+
+        // track foreground
+        graphics.setColor(new Color(70, 139, 255));
+        int w = (int) MathUtil.clampedMap(progress, 0, 1, 0, sizeX);
+        graphics.fillRect(0, deltaY(4) + TRACK_SIZE / 4, w, TRACK_SIZE);
     }
 
     private int deltaY(int input) {
@@ -62,14 +76,9 @@ public class MissionControlPanel extends JPanel {
         BEACONS.stream().filter(beacon -> beacon.getId() == id).findFirst().ifPresent(beacon -> beacon.setTriggered(triggered));
     }
 
-    public void triggerTrack(int id, boolean triggered) {
-        TRACKS.stream().filter(beacon -> beacon.getId() == id).findFirst().ifPresent(beacon -> beacon.setTriggered(triggered));
-    }
-
     public void clearBoard() {
         for (int i = 1; i <= beaconCount; i++) {
             triggerBeacon(i, false);
-            triggerTrack(i, false);
         }
     }
 }

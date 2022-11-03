@@ -19,7 +19,7 @@ const String END_DELIMITER = ">";
  *                   pins 4 & 5 is sensor with id "2".
  *                   pins 6 & 7 is sensor with id "3".
  */
-const int SENSOR_COUNT = 0;
+const int SENSOR_COUNT = 4;
 
 void setup() {
   Serial.begin(9600);
@@ -52,9 +52,8 @@ void loop() {
   }
   data += "]";
 
-  String sensorJson = toJson("sensors", data);
-  String distanceJson = toJson("distance", String(distance(3, 2)));
-  send("{" + sensorJson + "," + distanceJson + "}");
+  send(toJson("sensors", data));
+  send(toJson("distance", String(distance(3, 2))));
 }
 
 bool isTriggered(int ping, int echo) {
