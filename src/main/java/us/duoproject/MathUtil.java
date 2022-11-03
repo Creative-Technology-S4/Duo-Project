@@ -6,7 +6,7 @@ public class MathUtil {
         return clampedLerp(p_144855_, p_144856_, inverseLerp(p_144852_, p_144853_, p_144854_));
     }
 
-    public static double clampedLerp(double p_14086_, double p_14087_, double p_14088_) {
+    private static double clampedLerp(double p_14086_, double p_14087_, double p_14088_) {
         if (p_14088_ < 0.0D) {
             return p_14086_;
         } else {
@@ -14,11 +14,11 @@ public class MathUtil {
         }
     }
 
-    public static double inverseLerp(double p_14113_, double p_14114_, double p_14115_) {
+    private static double inverseLerp(double p_14113_, double p_14114_, double p_14115_) {
         return (p_14113_ - p_14114_) / (p_14115_ - p_14114_);
     }
 
-    public static double lerp(double p_14140_, double p_14141_, double p_14142_) {
+    private static double lerp(double p_14140_, double p_14141_, double p_14142_) {
         return p_14141_ + p_14140_ * (p_14142_ - p_14141_);
     }
 }
