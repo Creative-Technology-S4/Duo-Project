@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
 
-    private static final String COM_PORT = "COM4";
-    private static final int SENSOR_COUNT = 4;
+    private static final String COM_PORT = "COM6";
+    private static final int SENSOR_COUNT = 5;
 
     private static final int SIZE_X = 1200;
     private static final int SIZE_Y = 600;
@@ -31,7 +31,8 @@ public class Main {
     @SuppressWarnings("StatementWithEmptyBody")
     public static void main(String[] args) {
         SerialPort port = SerialPort.getCommPort(COM_PORT);
-        while (!port.openPort()) { } // continuously attempt to open port
+        while (!port.openPort()) {
+        } // continuously attempt to open port
 
         try {
             String name = "btspp://202103110461:1;authenticate=true";
@@ -58,14 +59,26 @@ public class Main {
             }, 0, 10);
 
             MissionControlPanel panel = new MissionControlPanel(SIZE_X, SIZE_Y, SENSOR_COUNT);
-            JButton button = new JButton(new AbstractAction("Calibrate") {
+            JButton clibarteButton = new JButton(new AbstractAction("Calibrate") {
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     DO_CALIBRATE.set(true);
                 }
             });
-            button.setLocation(10, 10);
-            panel.add(button);
+            JButton startButton = new JButton(new AbstractAction("Start") {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    try {
+                        outputStream.write(new byte[] { 1 });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            startButton.setLocation(20, 10);
+            clibarteButton.setLocation(10, 10);
+            panel.add(clibarteButton);
+            panel.add(startButton);
 
             SerialPortJsonReader reader = new SerialPortJsonReader.Builder(SerialPort.LISTENING_EVENT_DATA_RECEIVED)
                     .listener(data -> onJson(panel, data))
@@ -93,7 +106,8 @@ public class Main {
         panel.revalidate();
         panel.repaint();
 
-        List<Integer> sensors = object.get("sensors").getAsJsonArray().asList().stream().map(JsonElement::getAsInt).toList();
+        List<Integer> sensors = object.get("sensors").getAsJsonArray().asList().stream().map(JsonElement::getAsInt)
+                .toList();
         for (Integer sensor : sensors) {
             panel.triggerBeacon(sensor, true);
         }

@@ -19,7 +19,7 @@ const String END_DELIMITER = ">";
  *                   pins 4 & 5 is sensor with id "2".
  *                   pins 6 & 7 is sensor with id "3".
  */
-const int SENSOR_COUNT = 4;
+const int SENSOR_COUNT = 5;
 
 void setup() {
   Serial.begin(9600);
@@ -66,11 +66,9 @@ long distance(int ping, int echo) {
   delayMicroseconds(10);
   digitalWrite(ping, LOW);
 
-//   delay(100);
   return pulseIn(echo, HIGH) / 29 / 2;
 }
 
 void send(String raw) {
   Serial.println(START_DELIMITER + raw + END_DELIMITER);
 }
-
